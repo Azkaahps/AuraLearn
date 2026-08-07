@@ -11,15 +11,10 @@
  *  6. /api/* route handlers                 → tidak diproteksi di middleware
  *     (setiap Route Handler memverifikasi session sendiri via createServerClient)
  *
- * Source:
- *  - docs/ARCHITECTURE.md §2 (middleware.ts)
- *  - docs/PRD.md §FR-00 (redirect ke /dashboard jika sudah login)
- *  - docs/AI-CONTEXT.md §Keputusan Final Tambahan (Landing Page behavior)
- *
- * ATURAN KEAMANAN:
+ * Security:
  *  - Middleware HANYA membaca session — tidak melakukan operasi DB.
  *  - Service role key TIDAK digunakan di sini.
- *  - Supabase session di-refresh otomatis via updateSession().
+ *  - Supabase session di-refresh otomatis via getUser().
  */
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
@@ -51,15 +46,14 @@ export async function middleware(request: NextRequest) {
     },
   );
 
-  // PENTING: Panggil getUser() — ini me-refresh session token jika expired.
-  // Jangan panggil getSession() di middleware (tidak aman untuk server-side).
+  // PENTING: Always call getUser() to refresh session cookies for all requests (including /api/*)
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   const { pathname } = request.nextUrl;
 
-  // ─── RULE 1: Halaman publik khusus (tidak perlu auth check) ───────────────
+  // ─── RULE 1: Halaman publik khusus (tidak perlu auth guard redirect) ───────
   // /share/[token], /guest/result, /api/* dibiarkan lewat
   const isPublicRoute =
     pathname.startsWith('/share/') ||
@@ -71,7 +65,6 @@ export async function middleware(request: NextRequest) {
   }
 
   // ─── RULE 2: User SUDAH login mengakses landing page atau auth pages ───────
-  // Redirect ke /dashboard (PRD FR-00, AI-CONTEXT Keputusan Final Tambahan)
   const isAuthPage =
     pathname === '/login' ||
     pathname === '/register' ||
@@ -84,8 +77,6 @@ export async function middleware(request: NextRequest) {
   }
 
   // ─── RULE 3: User BELUM login mengakses route yang diproteksi ─────────────
-  // Route group (app) mencakup: /dashboard, /upload, /quiz/*, /flashcard/*,
-  // /chat/*, /settings
   const isProtectedRoute =
     pathname.startsWith('/dashboard') ||
     pathname.startsWith('/upload') ||
@@ -97,24 +88,15 @@ export async function middleware(request: NextRequest) {
   if (!user && isProtectedRoute) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = '/login';
-    // Simpan URL tujuan asal agar bisa di-redirect balik setelah login
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Semua kondisi lain: lanjutkan ke halaman tujuan
   return supabaseResponse;
 }
 
 export const config = {
   matcher: [
-    /*
-     * Jalankan middleware di semua path KECUALI:
-     * - _next/static (static files)
-     * - _next/image (image optimization)
-     * - favicon.ico, sitemap.xml, robots.txt
-     * - File statis dengan ekstensi (png, jpg, svg, dll.)
-     */
     '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 };

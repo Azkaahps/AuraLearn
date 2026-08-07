@@ -36,9 +36,11 @@ function shuffleQuestionOptions<T extends { options: string[]; answer: string }>
 export async function POST(request: Request) {
   try {
     const supabase = await createServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
 
-    if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Sesi login Anda telah berakhir. Silakan login kembali.' }, { status: 401 });
+    }
 
     const body = await request.json();
     const { quiz_id, document_id } = body;
@@ -73,14 +75,19 @@ export async function POST(request: Request) {
           .single();
 
         if (docError || !doc) {
-          return NextResponse.json({ error: 'Dokumen tidak ditemukan atau tidak memiliki akses.' }, { status: 404 });
+          return NextResponse.json({ error: 'Dokumen tidak ditemukan atau Anda tidak memiliki akses.' }, { status: 404 });
         }
 
         const model = getGeminiModel('gemini-3.1-flash-lite', true);
         const prompt = buildQuizPrompt(doc.extracted_text, 10);
         const result = await model.generateContent(prompt);
         const textResponse = result.response.text();
-        const rawData = JSON.parse(textResponse);
+        
+        let cleanJson = textResponse.trim();
+        if (cleanJson.startsWith('```')) {
+          cleanJson = cleanJson.replace(/^```(?:json)?\n?/, '').replace(/\n?```$/, '').trim();
+        }
+        const rawData = JSON.parse(cleanJson);
         const parsed = QuizSchema.safeParse(rawData);
 
         if (!parsed.success) {
@@ -119,6 +126,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Kuis tidak ditemukan atau Anda tidak memiliki akses.' }, { status: 404 });
     }
 
+    // Dapatkan URL Origin untuk membuat full share_url
+    const requestUrl = new URL(request.url);
+    const origin = request.headers.get('origin') || `${requestUrl.protocol}//${requestUrl.host}`;
+
     // Cek apakah share link sudah pernah dibuat
     const { data: existingLink } = await supabase
       .from('share_links')
@@ -127,7 +138,11 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     if (existingLink) {
-      return NextResponse.json({ token: existingLink.token });
+      const shareUrl = `${origin}/share/${existingLink.token}`;
+      return NextResponse.json({ 
+        token: existingLink.token,
+        share_url: shareUrl 
+      });
     }
 
     // Buat token baru (UUID v4)
@@ -139,7 +154,12 @@ export async function POST(request: Request) {
 
     if (shareErr) throw shareErr;
 
-    return NextResponse.json({ token: shareLink.token });
+    const shareUrl = `${origin}/share/${shareLink.token}`;
+    return NextResponse.json({ 
+      token: shareLink.token,
+      share_url: shareUrl 
+    });
+
   } catch (e: any) {
     console.error('API Create Share Link Error:', e);
     return NextResponse.json({ error: e?.message || 'Gagal membuat tautan berbagi.' }, { status: 500 });
