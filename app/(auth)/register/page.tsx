@@ -14,7 +14,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
+import { CheckCircle2, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
 
 type FormState = 'idle' | 'loading' | 'success';
@@ -23,6 +23,8 @@ export default function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formState, setFormState] = useState<FormState>('idle');
 
@@ -126,35 +128,55 @@ export default function RegisterPage() {
             <Label htmlFor="password" className="font-mono text-xs font-bold text-white/80 uppercase tracking-wider">
               PASSWORD (MINIMAL 8 KARAKTER)
             </Label>
-            <Input
-              id="password"
-              type="password"
-              placeholder="Minimal 8 karakter"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              autoComplete="new-password"
-              minLength={8}
-              disabled={formState === 'loading'}
-              className="bg-[#150f23] border border-[#362d59] text-white placeholder:text-white/40 focus:border-[#6a5fc1] rounded-[8px] h-11 px-4 font-sans text-sm"
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Minimal 8 karakter"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                autoComplete="new-password"
+                minLength={8}
+                disabled={formState === 'loading'}
+                className="bg-[#150f23] border border-[#362d59] text-white placeholder:text-white/40 focus:border-[#6a5fc1] rounded-[8px] h-11 pl-4 pr-11 font-sans text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors p-1"
+                aria-label={showPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="confirm-password" className="font-mono text-xs font-bold text-white/80 uppercase tracking-wider">
               KONFIRMASI PASSWORD
             </Label>
-            <Input
-              id="confirm-password"
-              type="password"
-              placeholder="Ulangi password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              autoComplete="new-password"
-              disabled={formState === 'loading'}
-              className="bg-[#150f23] border border-[#362d59] text-white placeholder:text-white/40 focus:border-[#6a5fc1] rounded-[8px] h-11 px-4 font-sans text-sm"
-            />
+            <div className="relative">
+              <Input
+                id="confirm-password"
+                type={showConfirmPassword ? 'text' : 'password'}
+                placeholder="Ulangi password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                autoComplete="new-password"
+                disabled={formState === 'loading'}
+                className="bg-[#150f23] border border-[#362d59] text-white placeholder:text-white/40 focus:border-[#6a5fc1] rounded-[8px] h-11 pl-4 pr-11 font-sans text-sm"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/50 hover:text-white transition-colors p-1"
+                aria-label={showConfirmPassword ? 'Sembunyikan password' : 'Tampilkan password'}
+              >
+                {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
 
           {error && (
