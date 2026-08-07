@@ -1491,6 +1491,39 @@ di halaman login/register untuk password berikan tombol show password(pakai icon
   - `npm run build` diuji dan terkompilasi bersih tanpa error (21/21 static pages generated).
   - Perubahan di-push ke repositori GitHub (`main`).
 
+---
+
+## [07 Agustus 2026] Sesi 43: Optimasi Responsivitas Grid Kartu Dokumen & Aksesibilitas Skala Layar (Windows Scaling Fix)
+
+### 1. Prompt Asli User
+```text
+kadang di device orang lain tuh walaupun ukuran browsernya normal 100%, tapi akan seperti digambar terlalu zoom. pikirkan opsi terbaik untuk perubahan ini
+```
+
+### 2. Akar Masalah & Analisis Visual
+
+* **Penyebab Kartu Terlihat Terlalu Zoom / Terpotong:**
+  - Pada laptop/layar standar (seperti resolusi 1366x768 atau Windows Display Scale 125%/150%), lebar viewport logika peramban menyusut ke rentang `1024px - 1440px`.
+  - Pemicu breakpoint `xl:grid-cols-4` sebelumnya memaksakan **4 kolom kartu sekaligus** pada lebar layar `1280px`. Hal ini menyebabkan tiap kartu hanya mendapatkan lebar sangat sempit (~220px - 240px).
+  - Akibatnya, tombol-tombol aksi di toolbar bawah kartu (`KUIS`, `KARTU`, `Chat`, `Share`) menjadi terhimpit dan meluap (*overflow*) ke luar kontainer kartu.
+
+### 3. Perubahan & Solusi yang Dilakukan (`DocumentCardGrid.tsx`)
+
+* **Penyesuaian Breakpoint Grid Konsol yang Nyaman:**
+  - Mengubah konfigurasi grid dari `xl:grid-cols-4` menjadi `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6`.
+  - Pada layar laptop/tablet (lebar 1024px hingga 1535px, atau saat Windows Display Scaling aktif), grid kini secara cerdas menampilkan **3 kolom luas** (setiap kartu mendapatkan lebar optimal ~320px+).
+  - Kolom ke-4 hanya diaktifkan pada layar desktop yang sangat lebar (`2xl:` $\ge$ 1536px).
+
+* **Optimasi Toolbar Aksi Kartu:**
+  - Menambahkan pembatas `overflow-hidden` dan `min-w-0` pada kontainer kartu.
+  - Menyesuaikan dimensi tombol aksi bawah menjadi `h-9` dengan `px-2` serta atribut `truncate` pada label teks (`KUIS` & `KARTU`).
+  - Menjamin tombol ikon `Chat` & `Share` menggunakan `shrink-0` agar tidak pernah terpotong atau meluap ke luar kartu.
+
+* **Verifikasi Build & Push:**
+  - `npm run build` diuji dan terkompilasi bersih tanpa error (21/21 static pages generated).
+  - Mengunggah commit perbaikan `fix: adjust grid breakpoints and card action toolbar layout for display scaling` ke GitHub.
+
+
 
 
 
