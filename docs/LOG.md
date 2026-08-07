@@ -1471,6 +1471,27 @@ title pada tab semua halaman ganti dengan format seperti ini
 * **Verifikasi Build:**
   - `npm run build` diuji dan terkompilasi bersih tanpa error (21/21 static pages generated).
 
+---
+
+## [07 Agustus 2026] Sesi 42: Penambahan Tombol Icon Show Password di Form Login & Register
+
+### 1. Prompt Asli User
+```text
+di halaman login/register untuk password berikan tombol show password(pakai icon aja).
+```
+
+### 2. Output & Perubahan Workspace
+
+* **Penambahan Ikon Toggle Password (Eye / EyeOff):**
+  - **`app/(auth)/login/page.tsx`**: Menambahkan state `showPassword` beserta tombol ikon interaktif `<Eye />` / `<EyeOff />` dari `lucide-react` di dalam input field `password`.
+  - **`app/(auth)/register/page.tsx`**: Menambahkan state `showPassword` & `showConfirmPassword` beserta tombol ikon `<Eye />` / `<EyeOff />` untuk kedua kolom input password (Password & Konfirmasi Password).
+  - Menyesuaikan padding input (`pl-4 pr-11`) dan menambahkan atribut `aria-label` untuk mendukung aksesibilitas (a11y).
+
+* **Verifikasi Build & Push:**
+  - `npm run build` diuji dan terkompilasi bersih tanpa error (21/21 static pages generated).
+  - Perubahan di-push ke repositori GitHub (`main`).
+
+
 
 
 
