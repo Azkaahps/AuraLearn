@@ -19,9 +19,26 @@ const ALLOWED_MIME_TYPES = [
   'image/webp'
 ];
 
+/**
+ * Infer MIME type from file extension if browser sends generic or empty file.type
+ */
+function getNormalizedMimeType(file: File): string {
+  let type = file.type?.toLowerCase() || '';
+  const ext = file.name ? file.name.split('.').pop()?.toLowerCase() : '';
+
+  if (ext === 'pdf') return 'application/pdf';
+  if (ext === 'docx') return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+  if (ext === 'pptx') return 'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+  if (ext === 'jpg' || ext === 'jpeg') return 'image/jpeg';
+  if (ext === 'png') return 'image/png';
+  if (ext === 'webp') return 'image/webp';
+
+  return type;
+}
+
 export async function POST(request: Request) {
   try {
-    // 1. Verifikasi Autentikasi (Route protection / backend RLS check)
+    // 1. Verifikasi Autentikasi
     const supabase = await createServerClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
 
@@ -34,22 +51,28 @@ export async function POST(request: Request) {
     try {
       formData = await request.formData();
     } catch (e) {
-      return NextResponse.json({ error: 'Invalid form data' }, { status: 400 });
+      return NextResponse.json({ error: 'Format data pengiriman tidak valid.' }, { status: 400 });
     }
 
     const file = formData.get('file') as File | null;
     if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
+      return NextResponse.json({ error: 'Tidak ada berkas yang diunggah.' }, { status: 400 });
     }
 
-    // 3. Validasi Tipe Ekstensi (Whitelist ekstensi)
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-      return NextResponse.json({ error: 'Unsupported file type. Only PDF, DOCX, PPTX, JPG, PNG, WEBP are allowed.' }, { status: 400 });
+    const normalizedMimeType = getNormalizedMimeType(file);
+
+    // 3. Validasi Tipe Ekstensi
+    if (!ALLOWED_MIME_TYPES.includes(normalizedMimeType)) {
+      return NextResponse.json({ 
+        error: `Format berkas "${file.name}" tidak didukung. Harap unggah PDF, DOCX, PPTX, JPG, PNG, atau WEBP.` 
+      }, { status: 400 });
     }
 
     // 4. Validasi Ukuran File (Maksimal 50MB)
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      return NextResponse.json({ error: `File size exceeds ${MAX_FILE_SIZE_MB}MB limit.` }, { status: 400 });
+      return NextResponse.json({ 
+        error: `Ukuran berkas melebihi batas ${MAX_FILE_SIZE_MB}MB.` 
+      }, { status: 400 });
     }
 
     // 5. Cek Kuota & Lazy Evaluation (Quota Reset)
@@ -60,7 +83,7 @@ export async function POST(request: Request) {
       .single();
 
     if (profileError || !profile) {
-      return NextResponse.json({ error: 'Profile not found' }, { status: 500 });
+      return NextResponse.json({ error: 'Profil akun tidak ditemukan.' }, { status: 500 });
     }
 
     let { tier, docs_used, quota_reset } = profile;
@@ -70,7 +93,6 @@ export async function POST(request: Request) {
     // Lazy evaluation: Jika bulan/tahun berbeda, reset docs_used menjadi 0
     if (now.getMonth() !== quotaDate.getMonth() || now.getFullYear() !== quotaDate.getFullYear()) {
       docs_used = 0;
-      // Perbarui di database
       await supabase
         .from('user_profiles')
         .update({
@@ -82,7 +104,9 @@ export async function POST(request: Request) {
 
     const maxDocs = tier === 'pro' ? 50 : 3;
     if (docs_used >= maxDocs) {
-      return NextResponse.json({ error: `Monthly quota exceeded. Max ${maxDocs} documents for ${tier} tier.` }, { status: 403 });
+      return NextResponse.json({ 
+        error: `Kuota dokumen bulanan Anda (${docs_used}/${maxDocs}) telah habis untuk paket ${tier.toUpperCase()}.` 
+      }, { status: 403 });
     }
 
     // 6. Konversi In-Memory Buffer (ZERO STORAGE PHYSICAL FILES)
@@ -91,35 +115,37 @@ export async function POST(request: Request) {
     
     let parserResult;
     try {
-      if (file.type === 'application/pdf') {
+      if (normalizedMimeType === 'application/pdf') {
         parserResult = await parsePDF(buffer);
-      } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      } else if (normalizedMimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
         parserResult = await parseDOCX(buffer);
-      } else if (file.type === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
+      } else if (normalizedMimeType === 'application/vnd.openxmlformats-officedocument.presentationml.presentation') {
         parserResult = await parsePPTX(buffer);
-      } else if (file.type.startsWith('image/')) {
-        parserResult = await parseImage(buffer, file.type);
+      } else if (normalizedMimeType.startsWith('image/')) {
+        parserResult = await parseImage(buffer, normalizedMimeType);
       } else {
-        throw new Error("Mime type validation bypassed logic error.");
+        return NextResponse.json({ error: 'Format berkas tidak dikenali.' }, { status: 400 });
       }
     } catch (parseError) {
       console.error("Parse Error:", parseError);
-      return NextResponse.json({ error: 'Failed to parse document.' }, { status: 500 });
+      return NextResponse.json({ error: 'Gagal mengekstrak teks dari dokumen.' }, { status: 500 });
     }
 
     // 7. Cek Batas Halaman (tergantung limitasi tier)
     const maxPages = tier === 'pro' ? 100 : 10;
     if (parserResult.pageCount > maxPages) {
-      return NextResponse.json({ error: `Page count exceeds limit. Max ${maxPages} pages for ${tier} tier.` }, { status: 400 });
+      return NextResponse.json({ 
+        error: `Jumlah halaman (${parserResult.pageCount} hlm) melebihi batas paket ${tier.toUpperCase()} (maks ${maxPages} hlm).` 
+      }, { status: 400 });
     }
 
     // 8. OCR Ekstraksi via Gemini (hanya jika berkas berupa gambar atau hasil scan PDF)
     let finalExtractedText = typeof parserResult.text === 'string' ? parserResult.text : String(parserResult.text || '');
 
-    if (parserResult.isScanned || file.type.startsWith('image/')) {
+    if (parserResult.isScanned || normalizedMimeType.startsWith('image/')) {
       try {
-        const ocrModel = getGeminiModel('gemini-3-flash'); // Vision/OCR: gunakan gemini-3-flash
-        const base64Data = file.type.startsWith('image/') 
+        const ocrModel = getGeminiModel('gemini-3-flash');
+        const base64Data = normalizedMimeType.startsWith('image/') 
           ? parserResult.metadata?.base64 
           : buffer.toString('base64');
 
@@ -129,7 +155,7 @@ export async function POST(request: Request) {
           {
             inlineData: {
               data: base64Data,
-              mimeType: file.type
+              mimeType: normalizedMimeType
             }
           },
           prompt
@@ -138,19 +164,19 @@ export async function POST(request: Request) {
         finalExtractedText = String(result.response.text() || '');
       } catch (ocrError) {
         console.error("OCR Gemini Error:", ocrError);
-        return NextResponse.json({ error: 'Failed to perform OCR with Gemini Pro.' }, { status: 500 });
+        return NextResponse.json({ error: 'Gagal melakukan OCR teks dengan Gemini AI.' }, { status: 500 });
       }
     }
 
     finalExtractedText = String(finalExtractedText || '');
 
     if (!finalExtractedText || finalExtractedText.trim().length === 0) {
-      return NextResponse.json({ error: 'Document is empty or no text could be extracted.' }, { status: 400 });
+      return NextResponse.json({ error: 'Dokumen tidak mengandung teks yang dapat dibaca.' }, { status: 400 });
     }
 
     // 9. Pilih Model Gemini (untuk pembuatan kuis nanti)
     const modelUsed = selectGeminiModel({
-      mimeType: file.type,
+      mimeType: normalizedMimeType,
       isScanned: parserResult.isScanned,
       pageCount: parserResult.pageCount,
       textLength: finalExtractedText.length,
@@ -173,10 +199,10 @@ export async function POST(request: Request) {
 
     if (docError || !document) {
       console.error("DB Insert Error:", docError);
-      return NextResponse.json({ error: 'Failed to save document context to database.' }, { status: 500 });
+      return NextResponse.json({ error: 'Gagal menyimpan konteks dokumen ke database.' }, { status: 500 });
     }
 
-    // 11. Potong Kuota Bulanan User (berkurang)
+    // 11. Potong Kuota Bulanan User
     const { error: updateError } = await supabase
       .from('user_profiles')
       .update({ docs_used: docs_used + 1 })
@@ -194,6 +220,6 @@ export async function POST(request: Request) {
 
   } catch (err: any) {
     console.error("Upload API Error:", err);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ error: 'Terjadi kesalahan sistem di server.' }, { status: 500 });
   }
 }

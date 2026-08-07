@@ -46,16 +46,20 @@ export function Hero() {
         body: formData
       });
       
-      if (!res.ok) throw new Error("Gagal mengunggah berkas");
-      
       const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error || "Gagal mengunggah berkas");
+        return;
+      }
+      
       sessionStorage.setItem('guest_data', JSON.stringify(data));
       
       toast.success("BERKAS BERHASIL DIPROSES!");
       router.push('/guest/result');
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      toast.error("Terjadi kesalahan saat memproses berkas Anda.");
+      toast.error(e?.message || "Terjadi kesalahan saat memproses berkas Anda.");
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
