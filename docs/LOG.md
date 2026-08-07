@@ -1523,6 +1523,26 @@ kadang di device orang lain tuh walaupun ukuran browsernya normal 100%, tapi aka
   - `npm run build` diuji dan terkompilasi bersih tanpa error (21/21 static pages generated).
   - Mengunggah commit perbaikan `fix: adjust grid breakpoints and card action toolbar layout for display scaling` ke GitHub.
 
+---
+
+## [07 Agustus 2026] Sesi 44: Tombol Navigasi "Kembali ke Beranda" pada Halaman Autentikasi (Login & Register)
+
+### 1. Prompt Asli User
+```text
+saat user logout kan ter direct ke halaman login, nah saya ingin ada navigasi untuk kembali kelanding page.
+```
+
+### 2. Output & Perubahan Workspace
+
+* **Penambahan Top Navigation Link (`app/(auth)/layout.tsx`):**
+  - Menambahkan tombol navigasi kembali bertuliskan `← KEMBALI KE BERANDA` tepat di bagian atas form kartu autentikasi.
+  - Menggunakan komponen `Link` yang mengarah langsung ke halaman Landing Page (`/`), berlatar konsol `#1f1633` dengan border `#362d59`, efek hover Electric Lime (`#c2ef4e`), dan animasi transisi ikon panah.
+
+* **Verifikasi Build & Push:**
+  - `npm run build` diuji dan terkompilasi bersih tanpa error (21/21 static pages generated).
+  - Mengunggah commit perbaikan `feat: add back to landing page navigation link on auth layout for login and register` to GitHub.
+
+
 
 
 
