@@ -1,0 +1,156 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5rem;
+    overflow-x: hidden;
+  }
+
+  /* ─── Pure Dark Console Tokens (Canvas #150f23 / #1f1633) ─── */
+  :root {
+    --background: 262 40% 14%;           /* #1f1633 Dark Canvas */
+    --foreground: 0 0% 100%;            /* #ffffff On Primary Text */
+    --card: 262 50% 10%;                /* #150f23 Night Surface Card */
+    --card-foreground: 0 0% 100%;
+    --popover: 262 50% 10%;             /* #150f23 */
+    --popover-foreground: 0 0% 100%;
+    --primary: 0 0% 100%;               /* #ffffff Inverted CTA */
+    --primary-foreground: 262 50% 10%;  /* #150f23 Dark type on CTA */
+    --secondary: 261 60% 32%;           /* #422082 Deep Violet */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 254 33% 26%;               /* #362d59 Hairline Violet border */
+    --muted-foreground: 0 0% 72%;       /* rgba(255,255,255,0.72) */
+    --accent: 77 82% 62%;               /* #c2ef4e Electric Lime */
+    --accent-foreground: 262 50% 10%;
+    --destructive: 340 93% 74%;         /* #fa7faa Hot Pink */
+    --destructive-foreground: 262 50% 10%;
+    --border: 254 33% 26%;              /* #362d59 Hairline Violet */
+    --input: 254 33% 26%;
+    --ring: 217 91% 60%;                /* rgba(59,130,246,0.5) */
+    --radius: 0.5rem;                   /* 8px */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    background-color: #150f23;
+    color: #ffffff;
+    font-family: var(--font-rubik), 'Rubik', sans-serif;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-space-grotesk), 'Space Grotesk', sans-serif;
+  }
+  code, pre, .font-mono {
+    font-family: var(--font-mono), 'JetBrains Mono', monospace;
+  }
+}
+
+/* AuraLearn Design Tokens & Utilities */
+@layer components {
+  /* Signature Keyword Highlight Chip */
+  .chip-lime-keyword {
+    background-color: #c2ef4e;
+    color: #150f23;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    padding: 0.1em 0.4em;
+    border-radius: 4px;
+    display: inline-block;
+    line-height: 1.1;
+  }
+
+  /* Button Caps - Always Uppercase + Tracking 0.2px */
+  .button-cap {
+    font-family: 'Rubik', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.14;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+  }
+
+  /* Eyebrows - Always Uppercase */
+  .eyebrow-cap {
+    font-family: 'Rubik', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    line-height: 1.4;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+  }
+
+  /* Micro Cap for Console Headers */
+  .micro-cap {
+    font-family: 'Monaco', 'Menlo', monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+}
+
+/* Grid & Starfield Background Patterns */
+.bg-starfield {
+  background-color: #1f1633;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-console-grid {
+  background-color: #150f23;
+  background-image: linear-gradient(to right, rgba(54, 45, 89, 0.15) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(54, 45, 89, 0.15) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+@media print {
+  body, html {
+    background: white !important;
+    color: black !important;
+  }
+  .print-hidden {
+    display: none !important;
+  }
+  .print-break-inside-avoid {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+  @page {
+    margin: 1.5cm;
+  }
+}
+
+/* Toast Notification System Overrides (100% Dark Console) */
+[data-sonner-toast] {
+  background-color: #150f23 !important;
+  border: 1px solid #362d59 !important;
+  color: #ffffff !important;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace !important;
+  border-radius: 8px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-sonner-toast][data-type="success"] {
+  border-left: 4px solid #c2ef4e !important;
+}
+
+[data-sonner-toast][data-type="error"] {
+  border-left: 4px solid #fa7faa !important;
+}
+
+[data-sonner-toast][data-type="info"] {
+  border-left: 4px solid #6a5fc1 !important;
+}
+
+[data-sonner-toast] [data-close-button] {
+  background-color: #1f1633 !important;
+  border-color: #362d59 !important;
+  color: #ffffff !important;
+}

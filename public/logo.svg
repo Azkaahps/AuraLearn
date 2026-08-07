@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500" width="100%" height="100%">
+  <defs>
+    <!-- Gradien Biru Logo -->
+    <linearGradient id="blueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#0284c7" />
+      <stop offset="100%" stop-color="#0369a1" />
+    </linearGradient>
+    
+    <!-- Gradien Emas Logo -->
+    <linearGradient id="goldGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#d97706" />
+      <stop offset="50%" stop-color="#f59e0b" />
+      <stop offset="100%" stop-color="#fbbf24" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(0, -20)">
+    <!-- Sinar Aura Emas -->
+    <g fill="url(#goldGrad)">
+      <polygon points="250,90 245,150 255,150" />
+      <polygon points="210,105 220,160 228,155" />
+      <polygon points="290,105 272,155 280,160" />
+      <polygon points="175,130 198,175 204,167" />
+      <polygon points="325,130 296,167 302,175" />
+      <polygon points="150,165 182,192 186,183" />
+      <polygon points="350,165 314,183 318,192" />
+    </g>
+
+    <!-- Lipatan Buku Luar (Kiri & Kanan) -->
+    <path d="M120 220 L140 210 L140 320 L120 310 Z" fill="url(#blueGrad)" opacity="0.8"/>
+    <path d="M380 220 L360 210 L360 320 L380 310 Z" fill="url(#goldGrad)" opacity="0.8"/>
+
+    <!-- Lipatan Buku Tengah -->
+    <path d="M160 200 L240 240 L240 350 L150 310 L150 210 Z" fill="none" stroke="url(#blueGrad)" stroke-width="12" stroke-linejoin="round"/>
+    <path d="M340 200 L260 240 L260 350 L350 310 L350 210 Z" fill="none" stroke="url(#blueGrad)" stroke-width="12" stroke-linejoin="round"/>
+
+    <!-- Aksen Huruf A / Gelombang Tengah -->
+    <path d="M200 310 L250 170 L300 310" fill="none" stroke="url(#blueGrad)" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M210 260 Q 250 230 290 250" fill="none" stroke="url(#blueGrad)" stroke-width="10" stroke-linecap="round"/>
+    
+    <!-- Alas Buku -->
+    <path d="M120 320 L250 370 L380 320" fill="none" stroke="url(#blueGrad)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Teks AURA LEARN -->
+  <text x="250" y="430" font-family="'Segoe UI', Roboto, sans-serif" font-weight="800" font-size="42" fill="#334155" text-anchor="middle" letter-spacing="3">
+    AURA LEARN
+  </text>
+</svg>
