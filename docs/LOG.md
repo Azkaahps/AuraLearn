@@ -1542,6 +1542,39 @@ saat user logout kan ter direct ke halaman login, nah saya ingin ada navigasi un
   - `npm run build` diuji dan terkompilasi bersih tanpa error (21/21 static pages generated).
   - Mengunggah commit perbaikan `feat: add back to landing page navigation link on auth layout for login and register` to GitHub.
 
+---
+
+## [07 Agustus 2026] Sesi 45: Perbaikan Isu Fitur Share Link HTTP 401 Unauthorized & Payload Respon
+
+### 1. Prompt Asli User
+```text
+share link tidak berfungsi apakah anda bisa menganalisa masalah tersebut
+# POST /api/share
+Status: 401
+...
+```
+
+### 2. Akar Masalah (Root Cause)
+
+* **Refreshed Session Cookie di Middleware (`middleware.ts`)**:
+  - Pengecekan `isPublicRoute` (`pathname.startsWith('/api/')`) pada middleware sebelumnya mengeksekusi `return supabaseResponse` **sebelum** fungsi `await supabase.auth.getUser()` dipanggil.
+  - Akibatnya, token cookie sesi Supabase tidak di-refresh saat API route `/api/share` dipanggil dari peramban, menyebabkan `getUser()` di dalam Route Handler mengembalikan pengguna anonim (`null`) dan memicu HTTP 401 Unauthorized.
+* **Format Payload Respon API (`app/api/share/route.ts`)**:
+  - API hanya mengembalikan `{ token: "..." }` tanpa menyertakan properti `share_url`. Sementara itu, komponen UI (`DocumentCardGrid.tsx`) mengecek `data.share_url` untuk disalin ke clipboard.
+
+### 3. Perubahan & Solusi yang Dilakukan
+
+* **Pembaruan Middleware (`middleware.ts`):**
+  - Menempatkan pemanggilan `await supabase.auth.getUser()` **sebelum** pemeriksaan `isPublicRoute` agar seluruh cookie sesi dipastikan ter-refresh secara otomatis pada setiap request API.
+* **Pembaruan Route Handler (`app/api/share/route.ts`):**
+  - Menyertakan properti `share_url` (contoh: `${origin}/share/${token}`) pada payload respon JSON.
+  - Menambahkan pembersih blok tanda ```json ... ``` pada respon pembuatan kuis otomatis AI.
+
+* **Verifikasi Build & Push:**
+  - `npm run build` diuji dan terkompilasi bersih tanpa error (21/21 static pages generated).
+  - Mengunggah commit perbaikan `fix: resolve share link 401 unauthorized issue & return complete share_url` ke repositori GitHub.
+
+
 
 
 
