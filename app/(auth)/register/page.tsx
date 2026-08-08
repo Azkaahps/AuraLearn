@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,10 +17,12 @@ import {
 } from '@/components/ui/card';
 import { CheckCircle2, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { Logo } from '@/components/ui/logo';
+import { toast } from 'sonner';
 
 type FormState = 'idle' | 'loading' | 'success';
 
 export default function RegisterPage() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -45,7 +48,7 @@ export default function RegisterPage() {
 
     setFormState('loading');
 
-    const { error: authError } = await supabase.auth.signUp({
+    const { data, error: authError } = await supabase.auth.signUp({
       email,
       password,
     });
@@ -54,12 +57,23 @@ export default function RegisterPage() {
       if (authError.message.includes('already registered')) {
         setError('Email ini sudah terdaftar. Silakan login.');
       } else {
-        setError('Gagal membuat akun. Silakan coba lagi.');
+        setError(authError.message || 'Gagal membuat akun. Silakan coba lagi.');
       }
       setFormState('idle');
       return;
     }
 
+    // Jika Confirm Email di-disable di Supabase Dashboard (Solusi A),
+    // data.session langsung bernilai valid & user langsung login otomatis
+    if (data?.session) {
+      toast.success('AKUN BERHASIL DIBUAT! SELAMAT DATANG.');
+      router.push('/dashboard');
+      router.refresh();
+      return;
+    }
+
+    // Jika Confirm Email tetap di-enable di Supabase Dashboard,
+    // tampilkan halaman sukses instruksi verifikasi email
     setFormState('success');
   }
 
@@ -95,7 +109,7 @@ export default function RegisterPage() {
     <Card className="w-full max-w-md border border-[#362d59] bg-[#1f1633] text-white shadow-2xl rounded-[18px] overflow-hidden">
       <CardHeader className="space-y-2 text-center pt-8 pb-6">
         <div className="flex justify-center mb-2">
-           <Logo href="/" showText={false} size="lg" />
+           <Logo href="/" showText={false} size="lg" title="Kembali ke Beranda" />
         </div>
         <CardTitle className="font-display text-2xl font-bold tracking-tight text-white">
           Buat Akun Gratis
