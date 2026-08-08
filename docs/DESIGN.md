@@ -1,64 +1,36 @@
-# AuraLearn — Sentry Design System Specification (Two-Polarity Canvas System)
+# AuraLearn — Sentry Design System Specification (100% Pure Dark Mode Console Aesthetic)
 
-Dokumen ini mendefinisikan arsitektur sistem desain AuraLearn berbasis **Sentry Two-Polarity Canvas System** yang mendukung mode **Light Canvas** (`#ffffff`) dan **Dark Canvas** (`#1f1633` / `#150f23`).
+Dokumen ini mendefinisikan arsitektur sistem desain AuraLearn berbasis **Sentry Pure Dark Mode Console Aesthetic** dengan skema warna konsol malam kontras tinggi (`#150f23` & `#1f1633`).
 
 ---
 
-## 🎨 1. Sentry Two-Polarity Canvas Architecture
+## 🎨 1. Sentry Dark Console Architecture
 
-Sistem ini tidak memaksakan satu warna latar tunggal, melainkan membagi halaman berdasarkan dua polaritas kanvas utama:
+Sistem antarmuka AuraLearn secara permanen mengusung **100% Pure Dark Mode Console Aesthetic** (`forcedTheme="dark"`) untuk pengalaman belajar berfokus tinggi tanpa gangguan visual:
 
-### A. Dark Canvas (`#1f1633` / `#150f23`)
-- **Peruntukan**: Marketing Hero, fitur produk utama, konsol dasbor, sesi kuis adaptif, dek flashcard, chat tutor AI, dan blok kode.
-- **Warna Latar**: `{colors.surface-canvas-dark}` (`#1f1633`) & `{colors.surface-night}` (`#150f23`).
-- **Teks**: `{colors.on-primary}` (`#ffffff`) dan `{colors.on-dark-muted}` (`rgba(255,255,255,0.72)`).
-- **Kartu**: Surface `{colors.ink-deep}` (`#1f1633`) / `{colors.surface-night}` (`#150f23`) dengan 1px Hairline Violet border (`#362d59`).
-- **Primary CTA**: Tombol terisi warna putih `{colors.on-primary}` (`#ffffff`) dengan teks gelap `{colors.ink-deep}` (`#1f1633`) (inverted primary).
-
-### B. Light Canvas (`#ffffff` / `#f0f0f0`)
-- **Peruntukan**: Halaman Harga (Pricing), Kontak/Setting, Tabel katalog dokumen padat, dan materi referensi kontekstual.
-- **Warna Latar**: `{colors.surface-canvas-light}` (`#ffffff`).
-- **Teks**: `{colors.ink}` (`#1f1633` — hex warna dark canvas yang di-repurpose sebagai teks gelap pada kanvas terang).
-- **Kartu**: Kartu putih (`#ffffff`) dengan Hairline Cloud border (`#e5e7eb` / `{colors.hairline-cool}` `#cfcfdb`).
-- **Primary CTA**: Tombol terisi warna Midnight Violet `{colors.primary}` (`#150f23`) dengan teks putih `{colors.on-primary}` (`#ffffff`).
-- **Pricing Rhythm**: Rangkaian kartu harga berwarna terang (cream-white) dengan **SATU kartu "Featured" bertema Dark Inverted (`#150f23`)** yang merepresentasikan suara otentik brand.
+### Dark Console Canvas (`#1f1633` / `#150f23`)
+- **Peruntukan**: Seluruh halaman aplikasi (Landing Hero, Dasbor Utama, Katalog Dokumen, Kuis Adaptif, Dek Flashcard, Chat AI Tutor, Settings, dan Form Autentikasi).
+- **Warna Latar Utama**: `surface-canvas-dark` (`#1f1633`) & `surface-night` (`#150f23`).
+- **Teks Utama**: White (`#ffffff`) & Translucent White (`rgba(255,255,255,0.70)`).
+- **Kartu Konsol**: Night Surface (`#150f23`) & Ink Surface (`#1f1633`) dibingkai 1px Hairline Violet border (`#362d59`) dan border hover (`#6a5fc1`).
+- **Accent Primary**: Electric Lime (`#c2ef4e`), Hot Pink (`#fa7faa`), Deep Violet (`#422082`), dan Soft Violet (`#6a5fc1`).
+- **Primary CTA**: Tombol berlatar putih (`#ffffff`) dengan teks gelap (`#150f23`) bertipe uppercase (`.button-cap`).
 
 ---
 
 ## 🗂️ 2. Comprehensive Token Mapping
 
-### CSS Variables (`app/globals.css`)
+### CSS Variables & Palette Tokens (`app/globals.css`)
 
 ```css
-/* ─── Light Mode Tokens (Light Canvas #ffffff) ─── */
-:root {
-  --background: 0 0% 100%;             /* #ffffff Light Canvas */
-  --foreground: 262 40% 14%;           /* #1f1633 Ink Violet text */
-  --card: 0 0% 100%;                  /* #ffffff White card surface */
-  --card-foreground: 262 40% 14%;     /* #1f1633 Ink Violet */
-  --primary: 262 50% 10%;             /* #150f23 Midnight Violet filled primary CTA */
-  --primary-foreground: 0 0% 100%;    /* #ffffff White type on primary button */
-  --secondary: 0 0% 94%;              /* #f0f0f0 Surface Press Light */
-  --secondary-foreground: 262 40% 14%;
-  --muted: 220 13% 91%;               /* #e5e7eb Hairline Cloud */
-  --muted-foreground: 250 10% 40%;
-  --accent: 77 82% 62%;               /* #c2ef4e Electric Lime */
-  --accent-foreground: 262 50% 10%;
-  --destructive: 340 93% 65%;         /* #fa7faa Hot Pink */
-  --border: 220 13% 91%;              /* #e5e7eb Hairline Cloud border */
-  --input: 215 16% 84%;               /* #cfcfdb Hairline Cool input border */
-  --ring: 217 91% 60%;                /* rgba(59,130,246,0.5) Focus ring */
-  --radius: 0.5rem;                   /* 8px */
-}
-
-/* ─── Dark Mode Tokens (Dark Canvas #1f1633 / #150f23) ─── */
-.dark {
+/* ─── Pure Dark Mode Console Tokens ─── */
+:root, .dark {
   --background: 262 40% 14%;           /* #1f1633 Dark Canvas */
-  --foreground: 0 0% 100%;            /* #ffffff On Primary */
-  --card: 262 50% 10%;                /* #150f23 Night surface card */
+  --foreground: 0 0% 100%;            /* #ffffff White Text */
+  --card: 262 50% 10%;                /* #150f23 Night Surface Card */
   --card-foreground: 0 0% 100%;
-  --primary: 0 0% 100%;               /* #ffffff Inverted CTA on dark */
-  --primary-foreground: 262 50% 10%;  /* #150f23 Dark type on inverted CTA */
+  --primary: 0 0% 100%;               /* #ffffff Inverted Primary CTA */
+  --primary-foreground: 262 50% 10%;  /* #150f23 Dark type on Primary CTA */
   --secondary: 261 60% 32%;           /* #422082 Deep Violet */
   --secondary-foreground: 0 0% 100%;
   --muted: 254 33% 26%;               /* #362d59 Hairline Violet border */
@@ -68,35 +40,38 @@ Sistem ini tidak memaksakan satu warna latar tunggal, melainkan membagi halaman 
   --destructive: 340 93% 74%;         /* #fa7faa Hot Pink */
   --border: 254 33% 26%;              /* #362d59 Hairline Violet */
   --input: 254 33% 26%;
-  --ring: 217 91% 60%;                /* rgba(59,130,246,0.5) */
+  --ring: 217 91% 60%;                /* rgba(59,130,246,0.5) Focus Ring */
+  --radius: 0.5rem;                   /* 8px */
 }
 ```
 
 ---
 
-## 🔤 3. Tipografi & Syntax Highlighting Device
+## 🔤 3. Tipografi & Standardisasi Tab Titles
 
 ### Font Families (`next/font/google`)
-- **Display Sans**: `Space Grotesk` (`var(--font-space-grotesk)`) — Headlines, section titles, kuis.
-- **UI Sans**: `Rubik` (`var(--font-rubik)`) — Body, label tombol uppercase (`0.2px` tracking), eyebrow caps.
-- **Code**: `JetBrains Mono` (`var(--font-mono)`) — Monaco/Menlo fallback untuk data telemetri & blok kode.
+- **Display Sans**: `Space Grotesk` (`var(--font-space-grotesk)`) — Headlines, judul halaman, dan pertanyaan kuis.
+- **UI Sans**: `Rubik` (`var(--font-rubik)`) — Teks body, label tombol uppercase (`button-cap`), dan status badge.
+- **Code / Monospace**: `JetBrains Mono` (`var(--font-mono)`) — Metadata konsol, telemetry, dan token data.
 
-### Signature Keyword Highlight Chip (`.chip-lime-keyword`)
-- Background: `{colors.accent-lime}` (`#c2ef4e`)
-- Teks: `{colors.ink-deep}` (`#150f23`)
-- Corner: `{rounded.xs}` (`4px`)
-- Padding: `0px` vertical, `12px` horizontal.
-- Penggunaan: Membungkus kata kunci penting di dalam headline sebagai perangkat sintaksis (bukan sekadar swatch warna).
+### Standardisasi Title Tab Peramban
+Format judul tab peramban diatur secara seragam tanpa em-dash:
+- Format Template: `AuraLearn - namahalaman`
+- Contoh: `AuraLearn - Home`, `AuraLearn - Dashboard`, `AuraLearn - Dokumen Saya`, `AuraLearn - Upload Dokumen`, `AuraLearn - Pengaturan`, `AuraLearn - Login`, `AuraLearn - Daftar`, `AuraLearn - Kuis`, `AuraLearn - Flashcard`, `AuraLearn - AI Tutor Chat`.
 
 ---
 
-## 🔘 4. Komponen & Hirarki Affordance
+## 🔘 4. Hirarki Komponen & Responsivitas Layout
 
-1. **`button-primary`**:
-   - Pada Light Canvas: Terisi `#150f23` dengan teks putih `#ffffff`.
-   - Pada Dark Canvas: Terisi `#ffffff` dengan teks gelap `#150f23`.
-   - Huruf selalu Uppercase dengan `0.2px` letter spacing (`button-cap`).
-2. **`text-input`**:
-   - Background `#ffffff` (light) / `#1f1633` (dark), border `#cfcfdb` / `#362d59`, dan ring focus translucent blue `rgba(59,130,246,0.5)` (`--ring`).
-3. **`ThemeToggle`**:
-   - Komponen toggle tema responsif di Navbar & Settings untuk beralih antara Mode Terang (Light), Mode Gelap (Dark), atau Sistem (System).
+1. **`button-primary` (`.button-cap`)**:
+   - Berlatar putih `#ffffff` dengan teks gelap `#150f23`.
+   - Huruf selalu Uppercase dengan `0.2px` letter-spacing dan `font-bold`.
+2. **Input Autentikasi dengan Show/Hide Password**:
+   - Field password pada halaman Login & Register dilengkapi tombol ikon interaktif `<Eye />` / `<EyeOff />` dari `lucide-react` dengan padding kanan `pr-11` agar teks password tidak terpotong.
+3. **Navigasi Kembali ke Beranda pada Autentikasi**:
+   - Halaman `/login` dan `/register` dilengkapi tombol navigasi `← KEMBALI KE BERANDA` di bagian atas kartu form.
+4. **Grid Dokumen Responsif (`DocumentCardGrid.tsx`)**:
+   - Menggunakan breakpoint `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-6`.
+   - Pada layar laptop/skala Windows 125%/150% (rentang 1024px–1535px), grid secara cerdas menampilkan 3 kolom luas sehingga tombol toolbar aksi (`KUIS`, `KARTU`, `Chat`, `Share`) tidak pernah terpotong atau meluap.
+5. **Toast Sonner Console Style**:
+   - Latar `#150f23`, border `#362d59`, indikator sukses `#c2ef4e`, dan error `#fa7faa`.
